@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+/* ---------- paleta: mesa de restaurante chinês, de madrugada ---------- */
+@theme static {
+  --font-pixel: "Press Start 2P", ui-monospace, monospace;
+
+  --color-ink: #1a0b08;
+  --color-table: #2a1410;
+  --color-table-alt: #331913;
+  --color-lacquer: #b3261e;
+  --color-paper: #f4e8c8;
+  --color-paper-shade: #d9c79a;
+  --color-gold: #f6cf75;
+
+  /* massa do biscoito (o sprite usa essas cinco) */
+  --color-crust-outline: #5a2e0e;
+  --color-crust-crease: #8a4a17;
+  --color-crust-dark: #b86f26;
+  --color-crust-mid: #e0a040;
+  --color-crust-light: #f6cf75;
+}
+
+/*
+  Animações em steps(): é isso que faz parecer 8-bit.
+  Em vez de interpolar suave, o navegador "pula" de quadro em quadro.
+  steps(1) = segura cada keyframe até o próximo (animação quadro a quadro de verdade).
+  steps(N) com 2 keyframes = N quadros intermediários.
+*/
+@theme {
+  --animate-bob: bob 1.4s steps(1) infinite;
+  --animate-blink: blink 1s steps(1) infinite;
+  --animate-twinkle: twinkle 1.8s steps(1) infinite;
+  --animate-shake: shake 0.9s steps(1) both;
+  --animate-tremble: tremble 0.55s steps(1) both;
+  --animate-crack-grow: crack-grow 0.5s steps(6) both;
+  --animate-split-left: split-left 0.8s steps(4) forwards;
+  --animate-split-right: split-right 0.8s steps(4) forwards;
+  --animate-crumb: crumb 0.9s steps(5) forwards;
+  --animate-slip-rise: slip-rise 0.9s steps(4) forwards;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes twinkle {
+  0%, 100% { transform: scale(0); }
+  25%, 75% { transform: scale(1); }
+  50% { transform: scale(1.5); }
+}
+
+/* a tremida vai ficando mais forte: o biscoito "avisa" que vai quebrar */
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  8% { transform: translate(-6px, 0) rotate(-5deg); }
+  16% { transform: translate(6px, -4px) rotate(5deg); }
+  24% { transform: translate(-6px, 0) rotate(-6deg); }
+  32% { transform: translate(6px, -6px) rotate(6deg); }
+  40% { transform: translate(-8px, 0) rotate(-7deg); }
+  50% { transform: translate(8px, -4px) rotate(7deg); }
+  60% { transform: translate(-8px, 0) rotate(-8deg); }
+  70% { transform: translate(8px, -2px) rotate(8deg); }
+  80% { transform: translate(-4px, 0) rotate(-4deg); }
+  90% { transform: translate(4px, 0) rotate(4deg); }
+}
+
+@keyframes tremble {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 0); }
+  40% { transform: translate(2px, 1px); }
+  60% { transform: translate(-2px, 1px); }
+  80% { transform: translate(2px, 0); }
+}
+
+/* a rachadura desce de cima pra baixo, 6 quadros */
+@keyframes crack-grow {
+  from { clip-path: inset(0 0 100% 0); opacity: 1; }
+  to { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+
+/* metades: sobem um pouquinho (o "estalo") e depois caem girando */
+@keyframes split-left {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  40% { transform: translate(-14%, -22%) rotate(-10deg); }
+  100% { transform: translate(-30%, 24%) rotate(-26deg); }
+}
+
+@keyframes split-right {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  40% { transform: translate(14%, -26%) rotate(12deg); }
+  100% { transform: translate(28%, 28%) rotate(32deg); }
+}
+
+/* migalhas: cada uma define --dx / --dy inline (ver FortuneCookie.tsx) */
+@keyframes crumb {
+  0% { translate: 0 0; opacity: 1; }
+  40% { translate: calc(var(--dx) * 0.7) var(--dy); opacity: 1; }
+  100% { translate: var(--dx) 9rem; opacity: 0; }
+}
+
+/* o papelzinho sai fininho de dentro do biscoito, desenrola pro lado e depois "abre" pra cima */
+@keyframes slip-rise {
+  0% { transform: translate(-50%, 6rem) scale(0.14, 0.05); opacity: 1; }
+  35% { transform: translate(-50%, 0.5rem) scale(0.14, 0.05); opacity: 1; }
+  65% { transform: translate(-50%, 0) scale(1, 0.05); opacity: 1; }
+  100% { transform: translate(-50%, 0) scale(1, 1); opacity: 1; }
+}
+
+/* canto "mordido" de 4px: a moldura clássica de caixa de diálogo 8-bit */
+@utility pixel-corners {
+  clip-path: polygon(
+    0 4px, 4px 4px, 4px 0,
+    calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
+    100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
+    4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px)
+  );
+}
+
+@layer base {
+  body {
+    background-color: var(--color-table);
+    /* xadrez da toalha de mesa */
+    background-image: conic-gradient(
+      var(--color-table-alt) 25%,
+      transparent 0 50%,
+      var(--color-table-alt) 0 75%,
+      transparent 0
+    );
+    background-size: 64px 64px;
+  }
+
+  /* scanlines bem de leve, só pra dar um ar de tubo */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 3px,
+      rgb(0 0 0 / 0.12) 3px 4px
+    );
+  }
+}
+
+/*
+  Biscoito já aberto hoje (ou prefers-reduced-motion): em vez de repetir a
+  animação, joga todas pro estado final. Como usam fill-mode forwards,
+  duração ~0 = aparece já no último quadro.
+*/
+[data-instant="true"],
+[data-instant="true"] * {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+}
