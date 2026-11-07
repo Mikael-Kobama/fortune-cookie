@@ -49,7 +49,6 @@ export const FORTUNES = [
   "Um passeio sem destino pode te levar aonde você precisa estar.",
   "Pare um minuto e agradeça por algo que você já conquistou.",
   "Seu maior talento ainda espera você dar um nome a ele.",
-  "Hoje a sorte é encontrar a pessoa certa na hora certa.",
   "O que você deu sem esperar nada vai voltar lindo.",
   "Dormir cedo e acordar com calma: esse é o seu luxo hoje.",
   "Pergunte como a pessoa está de verdade e escute até o fim.",
