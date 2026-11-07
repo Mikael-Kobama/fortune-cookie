@@ -7,17 +7,20 @@ import { sfx } from "../lib/sfx";
 
 // A animação é uma máquina de estados: cada fase vira um data-phase no palco,
 // e o CSS (variantes group-data-* do Tailwind) decide o que cada peça faz.
-type Phase = "boot" | "idle" | "shake" | "crack" | "break" | "slip" | "read";
+type Phase = "boot" | "idle" | "shake" | "crack" | "break" | "read";
 type Reading = { fortune: string; lucky: number[]; resetsAt: number };
 
-const ORDER: Phase[] = ["boot", "idle", "shake", "crack", "break", "slip", "read"];
+const ORDER: Phase[] = ["boot", "idle", "shake", "crack", "break", "read"];
 const reached = (current: Phase, target: Phase) => ORDER.indexOf(current) >= ORDER.indexOf(target);
 
 const STORAGE_KEY = "biscoito:v1";
 const MUTE_KEY = "biscoito:mudo";
 
 // duração de cada fase (ms). Tem que bater com as animações do globals.css
-const T = { shake: 900, crack: 550, break: 800, slip: 900 } as const;
+// "break" vai até o papelzinho terminar de abrir: ele começa SLIP_DELAY depois do estalo
+// (quando as metades já abriram um vão) e dura 1200ms, igual ao --animate-slip-rise.
+const T = { shake: 900, crack: 700, break: 1700 } as const;
+const SLIP_DELAY = 500;
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -149,10 +152,9 @@ export function FortuneCookie() {
     await wait(T.crack);
     setPhase("break");
     sfx.snap();
-    await wait(T.break);
-    setPhase("slip");
+    await wait(SLIP_DELAY);
     sfx.jingle();
-    await wait(T.slip);
+    await wait(T.break - SLIP_DELAY);
     setPhase("read");
   }, [phase]);
 
@@ -166,7 +168,6 @@ export function FortuneCookie() {
   };
 
   const broken = reached(phase, "break");
-  const slipOut = reached(phase, "slip");
 
   return (
     <section className="w-full">
@@ -184,7 +185,6 @@ export function FortuneCookie() {
       <div
         data-phase={phase}
         data-broken={broken}
-        data-slip={slipOut}
         data-instant={instant}
         className="group/stage relative mx-auto h-[31rem] w-full max-w-md data-[phase=boot]:invisible"
       >
@@ -192,7 +192,10 @@ export function FortuneCookie() {
         <div className="pixel-corners absolute bottom-14 left-1/2 h-3 w-48 -translate-x-1/2 bg-black/30 sm:w-64" />
 
         {/* papelzinho: nasce atrás do biscoito (z-0) e sobe pelo vão entre as metades */}
-        <div className="absolute bottom-[16.5rem] left-1/2 z-0 w-[min(92%,22rem)] origin-bottom opacity-0 group-data-[slip=true]/stage:animate-slip-rise">
+        <div
+          className="absolute bottom-[16.5rem] left-1/2 z-0 w-[min(92%,22rem)] origin-bottom opacity-0 group-data-[broken=true]/stage:animate-slip-rise"
+          style={{ animationDelay: `${SLIP_DELAY}ms` }}
+        >
           <Slip
             text={reading?.fortune ?? ""}
             lucky={reading?.lucky ?? []}

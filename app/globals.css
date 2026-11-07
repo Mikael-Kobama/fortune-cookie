@@ -31,12 +31,12 @@
   --animate-blink: blink 1s steps(1) infinite;
   --animate-twinkle: twinkle 1.8s steps(1) infinite;
   --animate-shake: shake 0.9s steps(1) both;
-  --animate-tremble: tremble 0.55s steps(1) both;
-  --animate-crack-grow: crack-grow 0.5s steps(6) both;
-  --animate-split-left: split-left 0.8s steps(4) forwards;
-  --animate-split-right: split-right 0.8s steps(4) forwards;
-  --animate-crumb: crumb 0.9s steps(5) forwards;
-  --animate-slip-rise: slip-rise 0.9s steps(4) forwards;
+  --animate-tremble: tremble 0.7s steps(1) both;
+  --animate-crack-grow: crack-grow 0.7s steps(9) both;
+  --animate-split-left: split-left 1.2s steps(1) forwards;
+  --animate-split-right: split-right 1.2s steps(1) forwards;
+  --animate-crumb: crumb 1.1s steps(1) forwards;
+  --animate-slip-rise: slip-rise 1.2s steps(1) forwards;
 }
 
 @keyframes bob {
@@ -70,45 +70,108 @@
   90% { transform: translate(4px, 0) rotate(4deg); }
 }
 
+/* 10 quadros em 0.7s: treme enquanto a rachadura desce */
 @keyframes tremble {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-2px, 0); }
-  40% { transform: translate(2px, 1px); }
-  60% { transform: translate(-2px, 1px); }
-  80% { transform: translate(2px, 0); }
+  0%   { transform: translate(0, 0); }
+  10%  { transform: translate(-2px, 0); }
+  20%  { transform: translate(2px, 1px); }
+  30%  { transform: translate(-2px, 1px); }
+  40%  { transform: translate(3px, 0); }
+  50%  { transform: translate(-3px, 1px); }
+  60%  { transform: translate(2px, 0); }
+  70%  { transform: translate(-2px, 1px); }
+  80%  { transform: translate(3px, 0); }
+  90%  { transform: translate(-2px, 0); }
+  100% { transform: translate(0, 0); }
 }
 
-/* a rachadura desce de cima pra baixo, 6 quadros */
+/* a rachadura desce de cima pra baixo, 9 quadros (2 linhas do sprite por quadro) */
 @keyframes crack-grow {
   from { clip-path: inset(0 0 100% 0); opacity: 1; }
   to { clip-path: inset(0 0 0 0); opacity: 1; }
 }
 
-/* metades: sobem um pouquinho (o "estalo") e depois caem girando */
+/*
+  metades: ~12 quadros por segundo, desenhados um a um.
+  Primeiro a abertura (o "estalo": sobem e se afastam devagar, deixando um vão
+  pro papelzinho sair), depois a gravidade puxa e elas caem girando.
+  A direita sobe um pouco mais alto que a esquerda, pra não ficar simétrico demais.
+*/
 @keyframes split-left {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  40% { transform: translate(-14%, -22%) rotate(-10deg); }
-  100% { transform: translate(-30%, 24%) rotate(-26deg); }
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  7%   { transform: translate(-1%, -3%) rotate(-2deg); }
+  14%  { transform: translate(-3%, -8%) rotate(-4deg); }
+  21%  { transform: translate(-5%, -13%) rotate(-6deg); }
+  28%  { transform: translate(-7%, -17%) rotate(-8deg); }
+  35%  { transform: translate(-9%, -20%) rotate(-10deg); }
+  42%  { transform: translate(-11%, -22%) rotate(-12deg); }
+  50%  { transform: translate(-13%, -22%) rotate(-14deg); }
+  57%  { transform: translate(-16%, -19%) rotate(-17deg); }
+  64%  { transform: translate(-19%, -13%) rotate(-20deg); }
+  71%  { transform: translate(-22%, -4%) rotate(-23deg); }
+  78%  { transform: translate(-25%, 7%) rotate(-25deg); }
+  85%  { transform: translate(-27%, 17%) rotate(-27deg); }
+  92%  { transform: translate(-29%, 24%) rotate(-28deg); }
+  100% { transform: translate(-30%, 26%) rotate(-28deg); }
 }
 
 @keyframes split-right {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  40% { transform: translate(14%, -26%) rotate(12deg); }
-  100% { transform: translate(28%, 28%) rotate(32deg); }
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  7%   { transform: translate(1%, -4%) rotate(2deg); }
+  14%  { transform: translate(3%, -9%) rotate(4deg); }
+  21%  { transform: translate(5%, -14%) rotate(7deg); }
+  28%  { transform: translate(7%, -19%) rotate(9deg); }
+  35%  { transform: translate(9%, -23%) rotate(12deg); }
+  42%  { transform: translate(11%, -25%) rotate(14deg); }
+  50%  { transform: translate(13%, -25%) rotate(17deg); }
+  57%  { transform: translate(15%, -22%) rotate(20deg); }
+  64%  { transform: translate(18%, -16%) rotate(23deg); }
+  71%  { transform: translate(21%, -6%) rotate(26deg); }
+  78%  { transform: translate(23%, 6%) rotate(29deg); }
+  85%  { transform: translate(26%, 18%) rotate(31deg); }
+  92%  { transform: translate(27%, 26%) rotate(33deg); }
+  100% { transform: translate(28%, 30%) rotate(34deg); }
 }
 
-/* migalhas: cada uma define --dx / --dy inline (ver FortuneCookie.tsx) */
+/*
+  migalhas: cada uma define --dx / --dy inline (ver FortuneCookie.tsx).
+  Um quadro a cada 10%. No eixo X ela anda reto (dx * t); no Y ela faz um arco:
+  sobe até --dy e volta (--dy * 4t(1-t)) enquanto a gravidade a puxa (9rem * t²).
+*/
 @keyframes crumb {
-  0% { translate: 0 0; opacity: 1; }
-  40% { translate: calc(var(--dx) * 0.7) var(--dy); opacity: 1; }
+  0%   { translate: 0 0; opacity: 1; }
+  10%  { translate: calc(var(--dx) * 0.1) calc(var(--dy) * 0.36 + 0.09rem); }
+  20%  { translate: calc(var(--dx) * 0.2) calc(var(--dy) * 0.64 + 0.36rem); }
+  30%  { translate: calc(var(--dx) * 0.3) calc(var(--dy) * 0.84 + 0.81rem); }
+  40%  { translate: calc(var(--dx) * 0.4) calc(var(--dy) * 0.96 + 1.44rem); }
+  50%  { translate: calc(var(--dx) * 0.5) calc(var(--dy) + 2.25rem); }
+  60%  { translate: calc(var(--dx) * 0.6) calc(var(--dy) * 0.96 + 3.24rem); }
+  70%  { translate: calc(var(--dx) * 0.7) calc(var(--dy) * 0.84 + 4.41rem); }
+  80%  { translate: calc(var(--dx) * 0.8) calc(var(--dy) * 0.64 + 5.76rem); }
+  90%  { translate: calc(var(--dx) * 0.9) calc(var(--dy) * 0.36 + 7.29rem); }
   100% { translate: var(--dx) 9rem; opacity: 0; }
 }
 
-/* o papelzinho sai fininho de dentro do biscoito, desenrola pro lado e depois "abre" pra cima */
+/*
+  o papelzinho, em três tempos (12 quadros):
+  1) sobe enrolado, fininho, pelo vão entre as metades  (0 a 50%)
+  2) desenrola pro lado                                 (58 a 75%)
+  3) "abre" pra cima até o tamanho final                (83 a 100%)
+  opacity 1 no começo E no fim: sem isso o fill-mode volta pro opacity-0 do elemento.
+*/
 @keyframes slip-rise {
-  0% { transform: translate(-50%, 6rem) scale(0.14, 0.05); opacity: 1; }
-  35% { transform: translate(-50%, 0.5rem) scale(0.14, 0.05); opacity: 1; }
-  65% { transform: translate(-50%, 0) scale(1, 0.05); opacity: 1; }
+  0%   { transform: translate(-50%, 6rem) scale(0.14, 0.05); opacity: 1; }
+  8%   { transform: translate(-50%, 4.8rem) scale(0.14, 0.05); }
+  16%  { transform: translate(-50%, 3.6rem) scale(0.14, 0.05); }
+  25%  { transform: translate(-50%, 2.5rem) scale(0.14, 0.05); }
+  33%  { transform: translate(-50%, 1.5rem) scale(0.14, 0.05); }
+  41%  { transform: translate(-50%, 0.7rem) scale(0.14, 0.05); }
+  50%  { transform: translate(-50%, 0) scale(0.14, 0.05); }
+  58%  { transform: translate(-50%, 0) scale(0.4, 0.05); }
+  66%  { transform: translate(-50%, 0) scale(0.7, 0.05); }
+  75%  { transform: translate(-50%, 0) scale(1, 0.05); }
+  83%  { transform: translate(-50%, 0) scale(1, 0.3); }
+  91%  { transform: translate(-50%, 0) scale(1, 0.65); }
   100% { transform: translate(-50%, 0) scale(1, 1); opacity: 1; }
 }
 
